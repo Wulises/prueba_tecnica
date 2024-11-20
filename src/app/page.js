@@ -1,95 +1,54 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client"; // Asegúrate de que el componente se ejecute del lado del cliente
+
+import React, { useEffect, useState } from "react";
 
 export default function Home() {
+  const [tasks, setTasks] = useState([]); // Estado para almacenar las tareas
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await fetch("/api/tasks"); // Llama a la API para obtener las tareas
+        const json = await res.json(); // Convierte la respuesta a JSON
+
+        // Verifica si la respuesta es un array
+        if (Array.isArray(json)) {
+          setTasks(json); // Si es un array, actualiza el estado con las tareas
+        } else {
+          console.error("La respuesta no es un array", json);
+          setTasks([]); // Si no es un array, asigna un array vacío
+        }
+      } catch (error) {
+        console.error("Error al cargar las tareas:", error);
+      }
+    }
+    fetchData();
+  }, []); // El array vacío [] asegura que solo se ejecute una vez
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <main style={{ padding: "2rem", backgroundColor: "#111", color: "#fff", fontFamily: "Arial, sans-serif" }}>
+      <h1 style={{ textAlign: "center", marginBottom: "2rem" }}>Lista de Tareas</h1>
+
+      {/* Mostrar las tareas */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
+        {/* Verifica que tasks sea un array antes de usar map */}
+        {Array.isArray(tasks) && tasks.map((task) => (
+          <div
+            key={task.id}
+            style={{
+              backgroundColor: "#222",
+              borderRadius: "8px",
+              padding: "1rem",
+              textAlign: "center",
+              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+            }}
           >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+            <h2 style={{ color: "#FFD700" }}>{task.title}</h2>
+            <p><strong>Descripción:</strong> {task.description}</p>
+            <p><strong>Estado:</strong> {task.status}</p>
+          </div>
+        ))}
       </div>
     </main>
-  )
+  );
 }
